@@ -1,0 +1,60 @@
+echo "Welcome to my gambling simulator"
+
+STAKE=100
+BET=1
+LOSS=0
+AMOUNT_BET=1
+amountLeft=$STAKE
+Won=1
+MAX_AMOUNT=$(( ($STAKE*50)/100 ))
+MIN_AMOUNT=-$MAX_AMOUNT
+NUMBER_OF_DAYS=20
+
+function makeBet() {
+	local betStatus=$((RANDOM%2))
+	if [ $Won -eq $betStatus ]
+	then
+		echo $AMOUNT_BET,$betStatus
+	else
+		echo -$AMOUNT_BET,$betStatus
+	fi
+}
+
+
+function updateAmount() {
+	local betAmount, betStatus="$( makeBet )"
+	amountLeft=$((  $amountLeft + $betAmount ))
+	echo $amountLeft, $betStatus
+}
+
+
+function dailyBetting() {
+	if [ $MAX_AMOUNT -eq $amountLeft -o $MIN_AMOUNT -eq $amountLeft ]
+	then
+		echo "Quit the game"
+	else
+		$amountLeft, $betStstus = "$ ( updateAmount )"
+	fi
+}
+
+function bettingTwentyDays() {
+	for i in {1..$NUMBER_OF_DAYS}
+	do
+		$amountLeft, $betStatus = "$ ( dailyBetting )"
+		echo $amountLeft, $betStstus
+	done
+}
+
+bettingTwentyDays
+
+function bettingTwentyDays() {
+   for i in {1..$NUMBER_OF_DAYS}
+   do
+      $amountLeft, $betStatus = "$ ( dailyBetting )"
+      echo $amountLeft, $betStstus
+   done
+}
+
+bettingTwentyDays
+
+

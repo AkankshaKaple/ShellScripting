@@ -1,61 +1,94 @@
+
 echo "Welcome to my gambling simulator"
 
 STAKE=100
 BET=1
 LOSS=0
-AMOUNT_BET=1
-amountLeft=$STAKE
-Won=1
-MAX_AMOUNT=$(( ($STAKE*50)/100 ))
-MIN_AMOUNT=-$MAX_AMOUNT
-NUMBER_OF_DAYS=20
+WIN=1
+NUMBER_OF_DAYS=2
 
-function makeBet() {
-	betStatus=$((RANDOM%2))
-	if [ $Won -eq $betStatus ]
+maxAmount=$(( $STAKE*50/100 ))
+minAmount=-$maxAmount
+dailyAmountLeft=$STAKE
+
+echo "Max Amount : "$maxAmount 
+
+function placeBet() {
+	local betStatus=$((RANDOM%2))
+	if [ $WIN -eq $betStatus ]
 	then
-		echo $AMOUNT_BET
+		echo $BET
 	else
-		echo -$AMOUNT_BET
+		echo -$BET
 	fi
 }
 
-
-function updateAmount() {
-	betAmount="$( makeBet )"
-	amountLeft=$((  $amountLeft + $betAmount ))
-	echo $amountLeft
+function updateAmount(){
+	local betAmount="$( placeBet )"
+	dailyAmountLeft=$(( $dailyAmountLeft + $betAmount ))
+	echo $dailyAmountLeft
 }
 
-
-function dailyBetting() {
-	if [ $MAX_AMOUNT -eq $amountLeft -o $MIN_AMOUNT -eq $amountLeft ]
-	then
-		echo "Quit the game"
-	else
-		updateAmount
-	fi
-}
-
-
-function bettingTwentyDays() {
-	x=$NUMBER_OF_DAYS
-	while [ $x -gt 0 ]
-   do
-      dailyBetting
-		x=$(($x-1))
-   done
-}
-
-function monthlyBetting() {
-	for (( day=1; day <= $NUMBER_OF_DAYS; day++ ))
+function dailyBetting(){
+	while [[ $dailyAmountLeft -lt $maxAmount && $dailyAmountLeft -gt $minAmount ]]
 	do
-   	dailyBetting
-		BetResult=$(( $BetResult + $amountLeft ))
-		amountLeft=0
+		dailyAmountLeft="$(updateAmount)"
 	done
-	echo $totalBetResult
+	echo $dailyAmountLeft
 }
 
-bettingTwentyDays
+win=0
+lose=0
 
+function getTotalWinAndLose(){
+	if [ $dailyAmountLeft -gt 0 ]
+  	then
+		win=$(( $win+1 ))
+        else
+                lose=$(( $lose+1 ))
+        fi
+}
+
+totalAmount=0
+
+function getLuckeyUnluckeyDay(){
+	if [ $totalAmount -gt $previousAmount ]
+	then
+		luckeyDay=$i
+	else
+		unluckeyDay=$i
+	fi
+}
+
+function Betting(){
+	for (( i=1; i <= $NUMBER_OF_DAYS; i++ ))
+	do
+		dailyAmountLeft="$( dailyBetting )"
+		previousAmount=$totalAmount
+		totalAmount=$(( $totalAmount + $dailyAmountLeft ))
+		getTotalWinAndLose
+		getLuckeyUnluckeyDay
+		dailyAmountLeft=0
+	echo "Values : " $totalAmount 
+	done
+	echo "Total Win = "$win
+	echo "Total Lose = "$lose
+	echo "L : "$luckeyDay
+	echo "UL : "$unluckeyDay
+
+}
+
+
+Betting
+while [ $totalAmount -ge $STAKE ]
+do
+	echo "Press 1 to continue betting : "
+	read choice
+	if [ $choice -eq 1 ]
+	then
+		Betting
+	else
+		echo "Bye Bye..."
+		exit
+	fi
+done
